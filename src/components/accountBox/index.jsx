@@ -63,6 +63,15 @@ const SmallText = styled.div`
   margin-top: 7px;
   z-index: 10;
 `;
+const AppContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
 
 const InnerContainer = styled.div`
   width: 100%;
@@ -120,6 +129,7 @@ export default function AccountBox(props) {
   const contextValue = {switchToSignup, switchToSignin};
   
   return (
+    <AppContainer>
   <AccountContext.Provider value={contextValue}>
   <BoxContainer>
     <TopContainer>
@@ -146,5 +156,7 @@ export default function AccountBox(props) {
     </InnerContainer>
   </BoxContainer>
   </AccountContext.Provider>  
+    </AppContainer>
+
   );
 }
