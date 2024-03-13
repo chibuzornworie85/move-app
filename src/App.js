@@ -1,11 +1,11 @@
-import "./App.css";
-import { Login } from "./component/login/Login";
+import './App.css';
+import AccountBox from './components/accountBox';
 
 function App() {
   return (
-    <>
-      <Login />
-    </>
+    <div className="text-[red] bg-[#000] h-[100vh]">
+         <AccountBox />
+    </div>
   );
 }
 
