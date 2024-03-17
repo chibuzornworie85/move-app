@@ -9,10 +9,10 @@ import {
   SubmitButton,
 } from "./common";
 import { Marginer } from "../marginer";
-import { AccountContext } from './accountContext';
+import { AccountContext } from "./accountContext";
+import { Link } from "react-router-dom";
 
 export function LoginForm(props) {
-
   const { switchToSignup } = useContext(AccountContext);
 
   return (
@@ -24,12 +24,16 @@ export function LoginForm(props) {
       <Marginer direction="vertical" margin={10} />
       <MutedLink href="#">Forget your password?</MutedLink>
       <Marginer direction="vertical" margin="1.6em" />
-      <SubmitButton type="submit">Signin</SubmitButton>
+      <Link style={{
+        
+      }} to={"/procurement3yiukjeg5-47/5408456-856"}>
+      <SubmitButton type="submit">Sign in</SubmitButton>
+      </Link>
       <Marginer direction="vertical" margin="5px" />
       <LineText>
         Don't have an accoun?{" "}
         <BoldLink onClick={switchToSignup} href="#">
-          Signup
+          Sign up
         </BoldLink>
       </LineText>
     </BoxContainer>

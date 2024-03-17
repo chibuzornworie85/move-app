@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const BoxContainer = styled.div`
   width: 100%;
@@ -24,10 +24,10 @@ export const MutedLink = styled.a`
 
 export const BoldLink = styled.a`
   font-size: 12px;
-  color: rgba(241,196,15,1);
+  color: rgba(241, 196, 15, 1);
   font-weight: 500;
   text-decoration: none;
-  border-bottom: 1px dashed rgba(241,196,15,1);
+  border-bottom: 1px dashed rgba(241, 196, 15, 1);
 `;
 
 export const Input = styled.input`
@@ -44,7 +44,6 @@ export const Input = styled.input`
     color: rgba(200, 200, 200, 1);
   }
 
-
   &:focus {
     outline: none;
     border-bottom: 1px solid rgba(241, 196, 15, 1);
@@ -53,7 +52,7 @@ export const Input = styled.input`
 
 export const SubmitButton = styled.button`
   width: 100%;
-  max-width: 150px;
+  width: 150px;
   padding: 10px;
   color: #fff;
   font-size: 15px;
@@ -63,7 +62,9 @@ export const SubmitButton = styled.button`
   cursor: pointer;
   transition: all 240ms ease-in-out;
   background: linear-gradient(
-    58deg, rgba(243,172,18,1) 20%, rgba(241,196,15,1) 100%
+    58deg,
+    rgba(243, 172, 18, 1) 20%,
+    rgba(241, 196, 15, 1) 100%
   );
 
   &:hover {
