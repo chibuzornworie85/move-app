@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spin } from "antd";
-import { NavLink } from "react-router-dom/dist";
+import { Table, Spin, Input, Button } from "antd";
+import { NavLink } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import axios from "axios";
+import { CSVLink } from "react-csv";
+
+const { Search } = Input;
 
 const columns = [
   {
     title: "Procurement Officer",
-    dataIndex: "name",
+    dataIndex: "procurement_officer",
   },
   {
     title: "Product",
@@ -17,41 +21,58 @@ const columns = [
     dataIndex: "quantity",
   },
   {
-    title: "Price",
-    dataIndex: "price",
-  },
-  {
-    title: "Quantity Bought",
-    dataIndex: "bought",
+    title: "Selling Price",
+    dataIndex: "selling_price",
   },
   {
     title: "Cost Price",
-    dataIndex: "cost",
+    dataIndex: "cost_price",
+  },
+  {
+    title: "Quantity Bought",
+    dataIndex: "quantity_bought",
+  },
+  {
+    title: "Profit",
+    dataIndex: "profit",
+  },
+  {
+    title: "Created_at",
+    dataIndex: "created_at",
   },
 ];
-const data = [];
-for (let i = 0; i < 46; i++) {
-  data.push({
-    key: i,
-    name: `Edward King ${i}`,
-    product: `Rice`,
-    quantity: 30,
-    price: 1000,
-    bought: 800,
-    cost: `800,000`,
-  });
-}
 
 const Orders = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [orders, setOrders] = useState([]);
+  const [searchDate, setSearchDate] = useState("");
+  const [filteredOrders, setFilteredOrders] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 700));
-      setIsLoading(false);
+      try {
+        const response = await axios.get(
+          "https://spiritual-anglerfish-sodbridge.koyeb.app/api/orders/all/"
+        );
+        console.log("Response data:", response.data);
+
+        setOrders(response.data.results);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const filteredData = orders.filter((order) =>
+      order.created_at.includes(searchDate)
+    );
+    setFilteredOrders(filteredData);
+  }, [searchDate, orders]);
+
   return (
     <>
       {isLoading ? (
@@ -62,15 +83,45 @@ const Orders = () => {
             <div className="text-[#000] pt-[35px] text-[25px] font-[700]">
               <NavLink to="/admin">
                 <h1>
-                  <ArrowBackIcon /> Client Orders
+                  <ArrowBackIcon /> All Orders
                 </h1>
               </NavLink>
             </div>
           </nav>
-          <Table columns={columns} dataSource={data} className="px-[40px]" />
+          <div className="px-[40px] my-4 flex justify-end gap-3 items-center">
+            <div>
+              <Search
+                placeholder="Search by date (YYYY-MM-DD)"
+                allowClear
+                enterButton="Search"
+                size="large"
+                onChange={(event) => setSearchDate(event.target.value)}
+              />
+            </div>
+            <div>
+              {filteredOrders.length > 0 && (
+                <Button>
+                  <CSVLink
+                    data={filteredOrders}
+                    filename={"filtered_orders.csv"}
+                    className="ant-btn ant-btn-primary ant-btn-lg"
+                    target="_blank"
+                  >
+                    Download CSV
+                  </CSVLink>
+                </Button>
+              )}
+            </div>
+          </div>
+          <Table
+            columns={columns}
+            dataSource={filteredOrders}
+            className="px-[40px]"
+          />
         </div>
       )}
     </>
   );
 };
+
 export default Orders;

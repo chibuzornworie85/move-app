@@ -1,93 +1,93 @@
 import React, { useState } from "react";
-import { Upload, Button, message, Select, DatePicker } from "antd";
+import { Upload, Button, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
-const { Option } = Select;
-
 const Content = () => {
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedBatch, setSelectedBatch] = useState(null);
-  const [uploadDisabled, setUploadDisabled] = useState(true);
+  const [file, setFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const beforeUpload = (file) => {
-    const fileType = file.type;
-    if (
-      fileType !==
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" &&
-      fileType !== "application/vnd.ms-excel"
-    ) {
-      message.error("You can only upload Excel files!");
-      return false;
-    }
-    return true;
-  };
+  const handleUpload = () => {
+    if (file) {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append("file", file);
 
-  const handleChange = (info) => {
-    if (info.file.status !== "uploading") {
-      console.log(info.file, info.fileList);
-    }
-    if (info.file.status === "done") {
-      message.success(`${info.file.name} file uploaded successfully`);
-    } else if (info.file.status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  };
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    updateUploadButtonState(date, selectedBatch);
-  };
-
-  const handleBatchChange = (value) => {
-    setSelectedBatch(value);
-    updateUploadButtonState(selectedDate, value);
-  };
-
-  const updateUploadButtonState = (date, batch) => {
-    if (date && batch) {
-      setUploadDisabled(false);
+      fetch(
+        "https://spiritual-anglerfish-sodbridge.koyeb.app/api/orders/upload-file/",
+        {
+          method: "POST",
+          body: formData,
+        }
+      )
+        .then((response) => {
+          setIsUploading(false);
+          if (response.ok) {
+            message.success("File uploaded successfully");
+          } else {
+            message.error("Failed to upload file");
+          }
+        })
+        .catch((error) => {
+          setIsUploading(false);
+          console.error("Error uploading file:", error);
+          message.error("Failed to upload file");
+        });
     } else {
-      setUploadDisabled(true);
+      message.error("Please upload a file first");
     }
   };
+
+  const beforeUploadHandler = (file) => {
+    const isCSV = file.type === "text/csv";
+    if (!isCSV) {
+      message.error("You can only upload CSV files!");
+    } else {
+      setFile(file);
+    }
+    return false;
+  };
+
+  const handleDownload = async () => {
+    try {
+      message.loading({ content: 'Downloading CSV file...', key: 'downloading' });
+      const response = await fetch('https://spiritual-anglerfish-sodbridge.koyeb.app/api/orders/download/csv');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'orders.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      message.success({ content: 'CSV file downloaded successfully', key: 'downloading' });
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      message.error({ content: 'Failed to download CSV file', key: 'downloading' });
+    }
+  };
+
 
   return (
-    <div className="w-[80%] h-[100vh bg-[#fff]">
+    <div className="w-[80%] h-[100vh] bg-[#fff]">
       <nav className="box bg-[#fff] h-[100px] px-[40px]">
         <div className="text-[#000] pt-[35px] text-[25px] font-[700]">
-          <h1>WelCome GewinCodeX</h1>
+          <h1>Welcome Emzy King's</h1>
         </div>
       </nav>
       <div className="px-[40px] py-[30px] flex flex-col gap-5">
-        <div className="flex">
-          <DatePicker
-            onChange={handleDateChange}
-            style={{ marginRight: "10px" }}
-          />
-          <Select
-            defaultValue="BATCHES"
-            style={{ width: 120, marginLeft: "10px" }}
-            onChange={handleBatchChange}
-          >
-            <Option value=".xlsx">BATCH 1</Option>
-            <Option value=".xls">BATCH 2</Option>
-            <Option value=".xls">BATCH 3</Option>
-          </Select>
-        </div>
         <div className="flex gap-2">
-          <Upload
-            beforeUpload={beforeUpload}
-            onChange={handleChange}
-            accept=".xlsx,.xls"
-            maxCount={1}
-            showUploadList={true}
-          >
-            <Button icon={<UploadOutlined />} disabled={uploadDisabled}>
-              Upload Excel File
+          <Upload beforeUpload={beforeUploadHandler}>
+            <Button icon={<UploadOutlined />} disabled={isUploading}>
+              Upload CSV File
             </Button>
           </Upload>
-          <Button disabled={uploadDisabled}>Upload</Button>
+          <Button onClick={handleUpload} disabled={!file || isUploading}>
+            {isUploading ? "Uploading..." : "Upload"}
+          </Button>
         </div>
+        <Button onClick={handleDownload} disabled={isUploading}>
+          Download CSV
+        </Button>
       </div>
     </div>
   );
