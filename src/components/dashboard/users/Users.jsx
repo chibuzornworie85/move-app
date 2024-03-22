@@ -8,32 +8,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Button from "@mui/material/Button";
-const columns = [
-  {
-    title: "Procurement Officer",
-    dataIndex: "name",
-  },
-  {
-    title: "Product",
-    dataIndex: "product",
-  },
-  {
-    title: "Quantity",
-    dataIndex: "quantity",
-  },
-  {
-    title: "Price",
-    dataIndex: "price",
-  },
-  {
-    title: "Quantity Bought",
-    dataIndex: "bought",
-  },
-  {
-    title: "Cost Price",
-    dataIndex: "cost",
-  },
-];
+
 const data = [];
 for (let i = 0; i < 46; i++) {
   data.push({
