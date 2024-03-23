@@ -16,6 +16,8 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { TextField } from "@mui/material";
+import { useEffect } from "react";
+import { useState } from "react";
 
 const style = {
   position: "absolute",
@@ -165,6 +167,46 @@ export default function ProcurementPage() {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+
+  const [orders, setOrders] = useState([]);
+  const [error, setError] = useState(null);
+
+useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const storedData = localStorage.getItem("userData");
+        if (!storedData) {
+          throw new Error("User data not found in localStorage");
+        }
+        const { token } = JSON.parse(storedData);
+
+        const response = await fetch(
+          "https://spiritual-anglerfish-sodbridge.koyeb.app/api/orders/my-orders/",
+          {
+            headers: {
+              Authorization: `Token ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch orders");
+        }
+
+        const data = await response.json();
+        setOrders(data);
+        console.log(data);
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div
