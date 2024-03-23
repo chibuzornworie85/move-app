@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Upload, Button, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
 const Content = () => {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [userData, setUserData] = useState(null);
 
   const handleUpload = () => {
     if (file) {
@@ -49,29 +50,47 @@ const Content = () => {
 
   const handleDownload = async () => {
     try {
-      message.loading({ content: 'Downloading CSV file...', key: 'downloading' });
-      const response = await fetch('https://spiritual-anglerfish-sodbridge.koyeb.app/api/orders/download/csv');
+      message.loading({
+        content: "Downloading CSV file...",
+        key: "downloading",
+      });
+      const response = await fetch(
+        "https://spiritual-anglerfish-sodbridge.koyeb.app/api/orders/download/csv"
+      );
       const blob = await response.blob();
       const url = window.URL.createObjectURL(new Blob([blob]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', 'orders.csv');
+      link.setAttribute("download", "orders.csv");
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
-      message.success({ content: 'CSV file downloaded successfully', key: 'downloading' });
+      message.success({
+        content: "CSV file downloaded successfully",
+        key: "downloading",
+      });
     } catch (error) {
-      console.error('Error downloading CSV:', error);
-      message.error({ content: 'Failed to download CSV file', key: 'downloading' });
+      console.error("Error downloading CSV:", error);
+      message.error({
+        content: "Failed to download CSV file",
+        key: "downloading",
+      });
     }
   };
 
+  const storeduserName = localStorage.getItem("username");
+
+
+  // useEffect(() => {
+  //   const storedData = localStorage.getItem("userData");
+
+  // }, []);
 
   return (
     <div className="w-[80%] h-[100vh] bg-[#fff]">
       <nav className="box bg-[#fff] h-[100px] px-[40px]">
         <div className="text-[#000] pt-[35px] text-[25px] font-[700]">
-          <h1>Welcome Emzy King's</h1>
+          <h1>Welcome {storeduserName}</h1>
         </div>
       </nav>
       <div className="px-[40px] py-[30px] flex flex-col gap-5">

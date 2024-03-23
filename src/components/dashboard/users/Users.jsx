@@ -8,6 +8,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Button from "@mui/material/Button";
+import { IndeterminateCheckBoxRounded } from "@mui/icons-material";
 
 const data = [];
 for (let i = 0; i < 46; i++) {
@@ -24,12 +25,43 @@ for (let i = 0; i < 46; i++) {
 
 const Users = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 700));
+      try {
+        // Retrieve token from localStorage
+        const storedData = localStorage.getItem("userData");
+        if (!storedData) {
+          throw new Error("User data not found in localStorage");
+        }
+        const { token } = JSON.parse(storedData);
+
+        // Perform GET request with Authorization header
+        const response = await fetch(
+          "https://spiritual-anglerfish-sodbridge.koyeb.app/api/users/",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Token ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+
+        const userData = await response.json();
+        setUserData(userData);
+        console.log(userData);
+      } catch (error) {
+        console.error("Error:", error);
+        // Handle errors here, e.g., set an error state
+      }
       setIsLoading(false);
     };
+
     fetchData();
   }, []);
   return (
@@ -48,53 +80,45 @@ const Users = () => {
             </div>
           </nav>
           <div className="flex justify-center mt-4">
-            <div className="max-w-[80vw]">
-              <Accordion>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1-content"
-                  id="panel1-header"
-                >
-                  User 1
-                </AccordionSummary>
-                <AccordionDetails>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Suspendisse malesuada lacus ex, sit amet blandit leo lobortis
-                  eget.
-                </AccordionDetails>
-              </Accordion>
-              <Accordion>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel2-content"
-                  id="panel2-header"
-                >
-                  User 2
-                </AccordionSummary>
-                <AccordionDetails>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Suspendisse malesuada lacus ex, sit amet blandit leo lobortis
-                  eget.
-                </AccordionDetails>
-              </Accordion>
-              <Accordion>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel3-content"
-                  id="panel3-header"
-                >
-                  User 3
-                </AccordionSummary>
-                <AccordionDetails>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Suspendisse malesuada lacus ex, sit amet blandit leo lobortis
-                  eget.
-                </AccordionDetails>
-                <AccordionActions>
-                  <Button>Cancel</Button>
-                  <Button>Agree</Button>
-                </AccordionActions>
-              </Accordion>
+            <div className="w-[80vw]">
+              {userData.map((data, index) => {
+                return (
+                  <Accordion key={index}>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel1-content"
+                      id="panel1-header"
+                    >
+                      {data?.username}
+                    </AccordionSummary>
+                    <AccordionDetails
+                      sx={{
+                        display: "flex",
+                        gap: "30px",
+                      }}
+                    >
+                      <p className="text-[#ffc82f]">
+                        USER ID:{" "}
+                        <span className="ml-3 text-[black]">
+                          {data?.user_id}{" "}
+                        </span>
+                      </p>
+                      <p className="text-[#ffc82f]">
+                        USER TYPE:{" "}
+                        <span className="ml-3 text-[black]">
+                          {data?.user_type}{" "}
+                        </span>
+                      </p>
+                      <p className="text-[#ffc82f]">
+                        EMAIL:{" "}
+                        <span className="ml-3 text-[black]">
+                          {data?.email}{" "}
+                        </span>
+                      </p>
+                    </AccordionDetails>
+                  </Accordion>
+                );
+              })}
             </div>
           </div>
           {/* <Table columns={columns} dataSource={data} className="px-[40px]" /> */}
