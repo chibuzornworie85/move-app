@@ -3,25 +3,9 @@ import { Spin } from "antd";
 import { NavLink } from "react-router-dom/dist";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Accordion from "@mui/material/Accordion";
-import AccordionActions from "@mui/material/AccordionActions";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Button from "@mui/material/Button";
-import { IndeterminateCheckBoxRounded } from "@mui/icons-material";
-
-const data = [];
-for (let i = 0; i < 46; i++) {
-  data.push({
-    key: i,
-    name: `Edward King ${i}`,
-    product: `Rice`,
-    quantity: 30,
-    price: 1000,
-    bought: 800,
-    cost: `800,000`,
-  });
-}
 
 const Users = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -80,7 +64,7 @@ const Users = () => {
             </div>
           </nav>
           <div className="flex justify-center mt-4">
-            <div className="w-[80vw]">
+            <div className="w-[80vw] my-[40px]">
               {userData.map((data, index) => {
                 return (
                   <Accordion key={index}>
@@ -121,7 +105,6 @@ const Users = () => {
               })}
             </div>
           </div>
-          {/* <Table columns={columns} dataSource={data} className="px-[40px]" /> */}
         </div>
       )}
     </>
