@@ -43,10 +43,11 @@ export function LoginForm(props) {
       localStorage.setItem("username", username);
       if (data?.is_admin) {
         navigate("/admin");
-        message.success("login successful")
+        
       } else {
         navigate("/procurement3yiukjeg5-47/5408456-856");
       }
+      message.success("login successful")
     } catch (error) {
       console.error("Error:", error);
     }

@@ -18,6 +18,7 @@ import Select from "@mui/material/Select";
 import { TextField } from "@mui/material";
 import { useEffect } from "react";
 import { useState } from "react";
+import { message } from "antd";
 
 const style = {
   position: "absolute",
@@ -32,14 +33,16 @@ const style = {
 };
 
 const columns = [
-  { id: "name", label: "Product Name", minWidth: 170 },
-  { id: "code", label: "Quantity", minWidth: 100, align: "center" },
+  { id: "product", label: "Product Name", minWidth: 170 },
+  { id: "quantity", label: "Quantity", minWidth: 100, align: "center" },
   {
-    id: "population",
+    id: "selling_price",
     label: "Selling Price",
     minWidth: 170,
     align: "right",
   },
+  { id: "created_at", label: "Date", minWidth: 100, align: "center" },
+
   { id: "action", label: "Action", minWidth: 170, align: "right" },
 ];
 
@@ -69,92 +72,19 @@ const columns = [
 //   },
 // ];
 
-const rows = [
-  {
-    name: "India",
-    code: "IN",
-    population: 1324171354,
-  },
-  {
-    name: "China",
-    code: "CN",
-    population: 1403500365,
-  },
-  {
-    name: "Italy",
-    code: "IT",
-    population: 60483973,
-  },
-  {
-    name: "United States",
-    code: "US",
-    population: 327167434,
-  },
-  {
-    name: "Canada",
-    code: "CA",
-    population: 37602103,
-  },
-  {
-    name: "Australia",
-    code: "AU",
-    population: 25475400,
-  },
-  {
-    name: "Germany",
-    code: "DE",
-    population: 83019200,
-  },
-  {
-    name: "Ireland",
-    code: "IE",
-    population: 4857000,
-  },
-  {
-    name: "Mexico",
-    code: "MX",
-    population: 126577691,
-  },
-  {
-    name: "Japan",
-    code: "JP",
-    population: 126317000,
-  },
-  {
-    name: "France",
-    code: "FR",
-    population: 67022000,
-  },
-  {
-    name: "United Kingdom",
-    code: "GB",
-    population: 67545757,
-  },
-  {
-    name: "Russia",
-    code: "RU",
-    population: 146793744,
-  },
-  {
-    name: "Nigeria",
-    code: "NG",
-    population: 200962417,
-  },
-  {
-    name: "Brazil",
-    code: "BR",
-    population: 210147125,
-  },
-];
-
 export default function ProcurementPage() {
   const [age, setAge] = React.useState("");
+  const [modalId, setModalId] = React.useState();
 
   const handleChange = (event) => {
     setAge(event.target.value);
   };
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
+  const handleOpen = (id) => {
+    console.log(id);
+    setOpen(true);
+    setModalId(id);
+  };
   const handleClose = () => setOpen(false);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -168,10 +98,53 @@ export default function ProcurementPage() {
     setPage(0);
   };
 
+  const [quantityBought, setQuantityBought] = useState("");
+  const [costPrice, setCostPrice] = useState("");
+
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState(null);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [loading, setLoading] = useState(false);
 
-useEffect(() => {
+  const handleUpdateOrder = async () => {
+    setLoading(true);
+    try {
+      const storedData = localStorage.getItem("userData");
+      if (!storedData) {
+        throw new Error("User data not found in localStorage");
+      }
+      const { token } = JSON.parse(storedData);
+      const response = await fetch(
+        `https://spiritual-anglerfish-sodbridge.koyeb.app/api/orders/update/${modalId}/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+          body: JSON.stringify({
+            id: modalId,
+            quantity_bought: quantityBought,
+            cost_price: costPrice,
+          }),
+        }
+      );
+
+      setCostPrice("");
+      setQuantityBought("");
+      setOpen(false);
+      message.success("Updated successfully");
+
+      if (!response.ok) {
+        throw new Error("Failed to update order");
+      }
+    } catch (error) {
+      message.error(error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     const fetchOrders = async () => {
       try {
         const storedData = localStorage.getItem("userData");
@@ -195,9 +168,9 @@ useEffect(() => {
 
         const data = await response.json();
         setOrders(data);
-        console.log(data);
+        setOpen(false);
       } catch (error) {
-        setError(error.message);
+        message.error(error);
       }
     };
 
@@ -207,6 +180,14 @@ useEffect(() => {
   if (error) {
     return <div>Error: {error}</div>;
   }
+
+  const filteredOrders = orders?.filter((order) => {
+    const orderDate = order?.created_at?.substring(0, 10);
+    console.log(orderDate);
+    return orderDate === selectedDate;
+  });
+
+  console.log(filteredOrders);
 
   return (
     <div
@@ -227,42 +208,16 @@ useEffect(() => {
       </div>
       <div className="flex gap-5 flex-wrap border items-end p-4 min-h-[90px] bg-white">
         <div className="flex flex-wrap items-end gap-3">
-          <FormControl sx={{ minWidth: 120 }} size="small">
-            <InputLabel
-              sx={{
-                backgroundColor: "white",
-              }}
-              id="demo-select-small-label"
-            >
-              Select Batch
-            </InputLabel>
-            <Select
-              labelId="demo-select-small-label"
-              id="demo-select-small"
-              value={age}
-              label="Age"
-              onChange={handleChange}
-            >
-              <MenuItem value={10}>Batch A</MenuItem>
-              <MenuItem value={20}>Batch B</MenuItem>
-              <MenuItem value={30}>Batch C</MenuItem>
-            </Select>
-          </FormControl>
-
           <div className="flex flex-col">
             <label className="text-[12px] ml-1"> select date</label>
-            <input type="date" className="border h-10 px-2" />
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="border h-10 px-2"
+            />
           </div>
         </div>
-        <Button
-          variant="contained"
-          sx={{
-            height: "40px",
-            backgroundColor: "#f5b622",
-          }}
-        >
-          Search
-        </Button>
       </div>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer sx={{ height: "60vh" }}>
@@ -291,37 +246,43 @@ useEffect(() => {
                 ))}
               </TableRow>
             </TableHead>
-            <TableBody>
-              {rows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={index}>
-                      {columns.map((column) => {
-                        const value =
-                          column.id === "action" ? (
-                            <Button onClick={handleOpen}>
-                              <MoreVertIcon />
-                            </Button>
-                          ) : (
-                            row[column.id]
+            {filteredOrders?.length < 1 ? (
+              <div className="text-[50px] border w-[100%] h-[100%] my-[20%] mx-[40%] flex justify-center items-center font-bold">
+                NO DATA TODAY!!!
+              </div>
+            ) : (
+              <TableBody>
+                {filteredOrders
+                  ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => {
+                    return (
+                      <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+                        {columns?.map((column) => {
+                          const value =
+                            column.id === "action" ? (
+                              <Button onClick={() => handleOpen(row.id)}>
+                                <MoreVertIcon />
+                              </Button>
+                            ) : (
+                              row[column.id]
+                            );
+                          return (
+                            <TableCell key={column.id} align={column.align}>
+                              {value}
+                            </TableCell>
                           );
-                        return (
-                          <TableCell key={column.id} align={column.align}>
-                            {value}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  );
-                })}
-            </TableBody>
+                        })}
+                      </TableRow>
+                    );
+                  })}
+              </TableBody>
+            )}
           </Table>
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
-          count={rows.length}
+          count={orders.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
@@ -342,6 +303,8 @@ useEffect(() => {
               label="Quantity Bought"
               placeholder="Placeholder"
               multiline
+              value={quantityBought}
+              onChange={(e) => setQuantityBought(e.target.value)}
               sx={{
                 width: "100%",
                 marginBottom: "20px",
@@ -352,6 +315,8 @@ useEffect(() => {
               label="Cost Price"
               placeholder="Placeholder"
               multiline
+              value={costPrice}
+              onChange={(e) => setCostPrice(e.target.value)}
               sx={{
                 width: "100%",
                 marginBottom: "20px",
@@ -360,15 +325,28 @@ useEffect(() => {
           </div>
 
           <div className="flex justify-end">
-            <Button
-              variant="contained"
-              sx={{
-                height: "40px",
-                backgroundColor: "#f5b622",
-              }}
-            >
-              Send
-            </Button>
+            {loading ? (
+              <Button
+                variant="contained"
+                sx={{
+                  height: "40px",
+                  backgroundColor: "#f5b622",
+                }}
+              >
+                Loading...
+              </Button>
+            ) : (
+              <Button
+                onClick={() => handleUpdateOrder()}
+                variant="contained"
+                sx={{
+                  height: "40px",
+                  backgroundColor: "#f5b622",
+                }}
+              >
+                Send
+              </Button>
+            )}
           </div>
         </Box>
       </Modal>
