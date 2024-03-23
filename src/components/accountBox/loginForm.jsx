@@ -11,6 +11,7 @@ import {
 import { Marginer } from "../marginer";
 import { AccountContext } from "./accountContext";
 import { useNavigate } from "react-router-dom";
+import { message } from "antd";
 
 export function LoginForm(props) {
   const { switchToSignup } = useContext(AccountContext);
@@ -42,6 +43,7 @@ export function LoginForm(props) {
       localStorage.setItem("username", username);
       if (data?.is_admin) {
         navigate("/admin");
+        message.success("login successful")
       } else {
         navigate("/procurement3yiukjeg5-47/5408456-856");
       }
