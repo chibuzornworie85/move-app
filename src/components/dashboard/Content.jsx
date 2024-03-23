@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { Upload, Button, message } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined, LogoutOutlined  } from "@ant-design/icons";
+import useLogout from "../logout/Logout";
 
 const Content = () => {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+   // eslint-disable-next-line
+  const { logout, isLoggingOut } = useLogout();
 
   const handleUpload = () => {
     if (file) {
@@ -79,6 +82,11 @@ const Content = () => {
 
   const storeduserName = localStorage.getItem("username");
 
+  const handleLogout = () => {
+    const storeduserName = localStorage.getItem("username");
+    logout(storeduserName);
+  };
+  
 
   // useEffect(() => {
   //   const storedData = localStorage.getItem("userData");
@@ -87,10 +95,13 @@ const Content = () => {
 
   return (
     <div className="w-[80%] h-[100vh] bg-[#fff]">
-      <nav className="box bg-[#fff] h-[100px] px-[40px]">
-        <div className="text-[#000] pt-[35px] text-[25px] font-[700]">
+      <nav className="box bg-[#fff] h-[100px] px-[40px] flex justify-between items-center">
+        <div className="text-[#000] text-[25px] font-[700]">
           <h1>Welcome {storeduserName}</h1>
         </div>
+        <Button onClick={handleLogout} icon={<LogoutOutlined />}>
+          Logout
+        </Button>
       </nav>
       <div className="px-[40px] py-[30px] flex flex-col gap-5">
         <div className="flex gap-2">
